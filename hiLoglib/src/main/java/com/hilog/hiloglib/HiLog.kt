@@ -69,6 +69,7 @@ object HiLog {
         log(HiLogManager.getConfig(), type, tag, *contents)
     }
 
+    val sb = StringBuilder()
     fun log(
         @NonNull config: HiLogConfig,
         @HiLogType.Type type: Int,
@@ -79,8 +80,7 @@ object HiLog {
             throw IllegalArgumentException("请配置config信息")
             return
         }
-        val sb = StringBuilder()
-
+        sb.clear()
         if (config.includeSystemLog()) {
             val sysLogInfo = HiLogConfig.HI_SYS_FORMATTER.format(ProcessBuilder("logcat", "-d"))
             sb.append(sysLogInfo).append("\n")
@@ -108,25 +108,15 @@ object HiLog {
                 if (it is HiFilePrinter) {
                     val content = sb.toString()
                     if (config.useDefaultEncrypt()) {
-
-                        it.print(
-                            config,
-                            type,
-                            tag,
-                            DefaultEncryptUtil.encrypt(
-                                content.toByteArray(),
-                                config.getDefaultEncryptKey().toByteArray()
-                            ).toString(Charsets.UTF_8) ?: ""
-                        )
+                        val encryptBeforeStr = DefaultEncryptUtil.encrypt(
+                            content.toByteArray(),
+                            config.getDefaultEncryptKey().toByteArray()
+                        ).toString(Charsets.UTF_8) ?: ""
+                        it.print(config, type, tag, encryptBeforeStr)
                     } else {
-                        it.print(
-                            config,
-                            type,
-                            tag,
-                            config.getEncryptCallback()?.encrypt(content) ?: ""
-                        )
+                        val encryptBeforeStr = config.getEncryptCallback()?.encrypt(content) ?: ""
+                        it.print(config, type, tag, encryptBeforeStr)
                     }
-
                 } else {
                     it.print(config, type, tag, sb.toString())
                 }

@@ -143,6 +143,11 @@ note left of HiLogModel
 该类为视图显示类HiViewPrinter中RecyclerView依赖项
 end note
 
+class HiLogConfig
+note left of HiLogConfig
+各种配置类信息
+end note
+
 HiViewPrinter ..> HiLogModel
 
 HiViewPrinter *-- HiLogPrinterProvider
