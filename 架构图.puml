@@ -1,0 +1,172 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+
+
+
+abstract class HiLogConfig{
+{static} val HI_STACK_TRACE_FORMATTER = HiStackTraceFormatter()
+{static} val HI_THREAD_FORMATTER = HiThreadFormatter()
+{static} val HI_SYS_FORMATTER = HiSysFormatter()
++     fun getPrinter(): MutableList<HiLogPrinter>
++     fun injectJsonParser(): JsonParser
++     fun includeThread(): Boolean
++     fun isOpenGlobalFloatingWidget(): Boolean
++     fun stackTraceDepth(): Int
++     fun getGlobalTag(): String
++     fun enable(): Boolean
++     fun getApplication(): Application
++     fun getIUploadLogFile(): IUploadLogFile
++     fun isSaveLogFile(): Boolean
++     fun getLogFileDir(): String
++     fun getLogFileSize(): Int
++     fun getMaxFileSize(): Int
++     fun getStateCallback(): StateCallBack
++     fun includeSystemLog(): Boolean
++     fun getEncryptCallback(): OnEncryptCallback
++     fun useDefaultEncrypt(): Boolean
++     fun getDefaultEncryptKey(): String
+}
+
+interface OnEncryptCallback{
+    fun encrypt(content: String): String
+}
+note left of OnEncryptCallback
+提供用户自定义加解密
+end note
+interface  IUploadLogFile {
+     fun uploadLogFile(file: MutableList<File>)
+}
+note left of IUploadLogFile::uploadLogFile
+用于用户触发回调上传日志文件
+end note
+
+HiLogConfig -- IUploadLogFile : contains
+HiLogConfig -- JsonParser : contains
+
+interface JsonParser {
+     fun toJson(src: Any): String
+}
+
+note right of JsonParser::toJson
+用户自定义对象解析器
+end note
+
+interface HiLogPrinter{
+   fun print(HiLogConfig,Int,String,String)
+}
+interface HiLogFormatter<T> {
+    fun format(data: T): String
+}
+interface StateCallBack{
+fun onError(state: ErrorType, msgError: String)
+}
+note left of StateCallBack::onError
+异常回调接口
+end note
+class HiLog{
++    fun v(vararg args: Any)
++    fun vt(tag: String = "", vararg args: Any)
++    fun d(vararg args: Any)
++    fun dt(tag: String = "", vararg args: Any)
++    fun i(vararg args: Any)
++    fun it(tag: String = "", vararg args: Any)
++    fun w(vararg args: Any)
++    fun wt(tag: String = "", vararg args: Any)
++    fun e(vararg args: Any)
++    fun et(tag: String = "", vararg args: Any)
++    fun a(vararg args: Any)
++    fun at(tag: String, vararg args: Any)
+}
+class HiLogManager{
++   fun sendLastNewLogFile()
++    fun sendAllLogFile()
++    fun deleteLogFile(file: File)
+}
+
+note left of HiLogManager::sendLastNewLogFile
+回调最新的日志文件
+end note
+
+note left of HiLogManager::sendAllLogFile
+回调所有的日志文件
+end note
+
+note left of HiLogManager::deleteLogFile
+提供上传成功删除本地文件
+end note
+class Factory{
+
+- fun init(config:HiLogConfig)
++ fun build()
+
+
+}
+HiLogManager -- Factory:contains
+class DefaultEncryptUtil{
+fun encrypt(data: ByteArray, key: ByteArray): ByteArray
+fun decrypt(data: ByteArray, key: ByteArray): ByteArray
+}
+note left of DefaultEncryptUtil::encrypt
+默认的加密工具
+end note
+note left of DefaultEncryptUtil::decrypt
+默认的解密工具
+end note
+
+class HiFilePrinter
+note left of HiFilePrinter
+处理日志写入本地类
+end note
+
+class HiViewPrinter
+note left of HiViewPrinter
+处理应用内视图类
+end note
+
+class HiConsolePrinter
+note left of HiConsolePrinter
+处理控制台输出
+end note
+HiLogPrinter <|-- HiConsolePrinter
+HiLogPrinter <|-- HiFilePrinter
+HiLogPrinter <|-- HiViewPrinter
+
+class HiLogPrinterProvider
+note left of HiLogPrinterProvider
+管理全局的日志视图
+end note
+
+class HiLogModel
+note left of HiLogModel
+该类为视图显示类HiViewPrinter中RecyclerView依赖项
+end note
+
+HiViewPrinter ..> HiLogModel
+
+HiViewPrinter *-- HiLogPrinterProvider
+
+HiLogFormatter <|--HiStackTraceFormatter
+HiLogFormatter <|--HiSysFormatter
+HiLogFormatter <|--HiThreadFormatter
+
+HiLogManager o-- HiLogPrinter
+HiLogManager o-- HiLogConfig
+Factory o-- HiLogConfig
+HiLog -- HiLogManager
+HiLog -- DefaultEncryptUtil
+
+HiLogConfig *-- HiStackTraceFormatter
+HiLogConfig *-- HiSysFormatter
+HiLogConfig *-- HiThreadFormatter
+StateCallBack ..> ErrorType
+StateCallBack --> HiLogConfig
+
+HiLogConfig *-- OnEncryptCallback
+
+enum ErrorType {
+    CREATE_FILE_ERROR
+}
+
+@enduml

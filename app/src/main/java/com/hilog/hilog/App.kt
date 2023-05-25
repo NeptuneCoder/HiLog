@@ -6,6 +6,7 @@ import com.hilog.hiloglib.HiLog
 import com.hilog.hiloglib.printer.HiConsolePrinter
 import com.hilog.hiloglib.HiLogConfig
 import com.hilog.hiloglib.HiLogManager
+import com.hilog.hiloglib.encrypt.OnEncryptCallback
 import java.io.File
 
 
@@ -17,14 +18,20 @@ class App : Application() {
             .setIsIncludeThread(true)
             .setIsOpenGlobalFloatingWidget(true)
             .setGlobalTag("MyApplication")
-
             .setStackTraceDepth(5)
             .addPrinter(HiConsolePrinter())
             .setApplication(this)
             .setIsSaveLogFile(true)
+            .setIsIncludeSystemLog(false)
             .setLogFileDir(this.cacheDir.absolutePath)
             .setMaxFileSize(1024 * 60)
             .setLogFileSize(1024 * 10)
+            .useDefaultEncrypt("232sxdasxzaasfaa")
+            .setEncryptCallback(object : OnEncryptCallback {
+                override fun encrypt(content: String): String {
+                    return content
+                }
+            })
             .setUploadLogFileCallback(object : HiLogConfig.IUploadLogFile {
                 override fun uploadLogFile(file: MutableList<File>) {
                     HiLog.i("回调日志文件个数：" + file.size)
@@ -36,7 +43,6 @@ class App : Application() {
                     return JSON.toJSONString(src)
                 }
             }).build()
-
 
 
     }

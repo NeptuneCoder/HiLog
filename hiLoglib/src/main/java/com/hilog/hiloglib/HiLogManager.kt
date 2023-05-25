@@ -1,6 +1,8 @@
 package com.hilog.hiloglib
 
 import android.app.Application
+import com.hilog.hiloglib.callback.StateCallBack
+import com.hilog.hiloglib.encrypt.OnEncryptCallback
 import com.hilog.hiloglib.printer.HiFilePrinter
 import com.hilog.hiloglib.printer.HiLogPrinter
 import com.hilog.hiloglib.printer.HiViewPrinter
@@ -65,6 +67,12 @@ object HiLogManager {
     }
 
     class Factory {
+        private var encryptKey: String = ""
+        private var encryptCallback: OnEncryptCallback? = null
+
+        private var isIncludeSystemLog: Boolean = false
+
+        private var stateCallBack: StateCallBack? = null
         private var maxFileSize: Int = 1024 * 1024 * 5
         private var logFileSize: Int = 1024 * 1024 * 1
         private var logFileDir: String = "/"
@@ -77,6 +85,7 @@ object HiLogManager {
         private var isIncludeThread: Boolean = false
         private var jsonParser: HiLogConfig.JsonParser? = null
         private val printers = mutableListOf<HiLogPrinter>()
+        private var useDefaultEncrypt = false
 
 
         fun addPrinter(printer: HiLogPrinter): Factory {
@@ -142,6 +151,29 @@ object HiLogManager {
             return this
         }
 
+        fun setOnStateCallback(stateCallBack: StateCallBack) {
+            this.stateCallBack = stateCallBack
+        }
+
+        fun setIsIncludeSystemLog(isIncludeSystemLog: Boolean): Factory {
+            this.isIncludeSystemLog = isIncludeSystemLog
+            return this
+        }
+
+        fun setEncryptCallback(encryptCallback: OnEncryptCallback): Factory {
+            this.encryptCallback = encryptCallback
+            return this
+        }
+
+        /**
+         * 128位（16字节）、192位（24字节）或256位（32字节）
+         */
+        fun useDefaultEncrypt(encryptKey: String): Factory {
+            this.encryptKey = encryptKey
+            useDefaultEncrypt = true
+            return this
+        }
+
 
         fun build() {
             checkParams()
@@ -193,6 +225,26 @@ object HiLogManager {
 
                 override fun getMaxFileSize(): Int {
                     return maxFileSize
+                }
+
+                override fun getStateCallback(): StateCallBack? {
+                    return stateCallBack
+                }
+
+                override fun includeSystemLog(): Boolean {
+                    return isIncludeSystemLog
+                }
+
+                override fun getEncryptCallback(): OnEncryptCallback? {
+                    return encryptCallback
+                }
+
+                override fun useDefaultEncrypt(): Boolean {
+                    return useDefaultEncrypt
+                }
+
+                override fun getDefaultEncryptKey(): String {
+                    return encryptKey
                 }
             }
 

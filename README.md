@@ -7,7 +7,8 @@
 1. 支持控制台日志查看功能
 2. 支持app内面板全局查看功能，解决没有控制台不能查看的问题
 3. 支持日常本地缓存功能及暴露日志上传接口
-
+## 项目整体架构图
+![img.png](pics/架构图.png)
 ## 使用案例
 
 ```kotlin
@@ -50,3 +51,4 @@ HiLogManager.sendLastNewLogFile()//回调最新的日志文件
 ## 全局查看日志文件
 
 ![img.png](pics/img_2.png)
+

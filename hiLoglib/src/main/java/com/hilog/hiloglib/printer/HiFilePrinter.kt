@@ -2,6 +2,7 @@ package com.hilog.hiloglib.printer
 
 import android.util.Log
 import com.hilog.hiloglib.HiLogConfig
+import com.hilog.hiloglib.callback.ErrorType
 import com.hilog.hiloglib.utils.DateStr2Long
 import com.hilog.hiloglib.utils.ThreadManager
 import com.hilog.hiloglib.utils.format
@@ -9,6 +10,7 @@ import com.hilog.hiloglib.utils.getFileSimpleName
 import java.io.BufferedWriter
 import java.io.File
 import java.io.IOException
+import java.lang.Exception
 import java.util.Arrays
 
 
@@ -25,11 +27,15 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
     private fun createNewFile(): File {
         val fileName = System.currentTimeMillis().format() + ".log"
         val filePath = fileDir.absolutePath + "/" + fileName
-        Log.i("tag", "filePath == " + filePath)
         val file = File(filePath)
-        if (!file.exists()) {
-            file.createNewFile()
+        try {
+            if (!file.exists()) {
+                file.createNewFile()
+            }
+        } catch (e: Exception) {
+            config.getStateCallback()?.onError(ErrorType.CREATE_FILE_ERROR, e.toString())
         }
+
         return file
     }
 

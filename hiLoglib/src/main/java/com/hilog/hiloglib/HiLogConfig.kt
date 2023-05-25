@@ -1,16 +1,20 @@
 package com.hilog.hiloglib
 
 import android.app.Application
+import com.hilog.hiloglib.callback.StateCallBack
+import com.hilog.hiloglib.encrypt.OnEncryptCallback
 import com.hilog.hiloglib.format.HiStackTraceFormatter
+import com.hilog.hiloglib.format.HiSysFormatter
 import com.hilog.hiloglib.format.HiThreadFormatter
 import com.hilog.hiloglib.printer.HiLogPrinter
 import java.io.File
 
-abstract class HiLogConfig {
+ abstract class HiLogConfig {
     companion object {
         val MAX_LEN = 512
         val HI_STACK_TRACE_FORMATTER = HiStackTraceFormatter()
         val HI_THREAD_FORMATTER = HiThreadFormatter()
+        val HI_SYS_FORMATTER = HiSysFormatter()
     }
 
     private val printersList = mutableListOf<HiLogPrinter>()
@@ -83,6 +87,26 @@ abstract class HiLogConfig {
 
     open fun getMaxFileSize(): Int {
         return 1024 * 1024 * 5
+    }
+
+    open fun getStateCallback(): StateCallBack? {
+        return null
+    }
+
+    open fun includeSystemLog(): Boolean {
+        return false
+    }
+
+    open fun getEncryptCallback(): OnEncryptCallback? {
+        return null
+    }
+
+    open fun useDefaultEncrypt(): Boolean {
+        return false
+    }
+
+    open fun getDefaultEncryptKey(): String {
+        return ""
     }
 
 

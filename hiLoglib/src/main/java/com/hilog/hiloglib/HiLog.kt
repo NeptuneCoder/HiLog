@@ -2,14 +2,16 @@ package com.hilog.hiloglib
 
 import android.util.Log
 import androidx.annotation.NonNull
+import com.hilog.hiloglib.encrypt.DefaultEncryptUtil
+import com.hilog.hiloglib.printer.HiFilePrinter
 import com.hilog.hiloglib.utils.HiStackTraceUtil
 
 import java.lang.IllegalArgumentException
 import java.lang.StringBuilder
 
 object HiLog {
-    val clazzName = HiLog::class.java.name
-    val HI_LOG_PACKAGE = clazzName.substring(0, clazzName.lastIndexOf(".") + 1)
+    private val clazzName = HiLog::class.java.name
+    private val HI_LOG_PACKAGE = clazzName.substring(0, clazzName.lastIndexOf(".") + 1)
     fun v(vararg args: Any) {
         log(HiLogType.A, contents = args)
     }
@@ -59,7 +61,7 @@ object HiLog {
     }
 
 
-    fun log(
+    private fun log(
         @HiLogType.Type type: Int,
         @NonNull tag: String = HiLogManager.getConfig().getGlobalTag(),
         vararg contents: Any
@@ -78,10 +80,16 @@ object HiLog {
             return
         }
         val sb = StringBuilder()
+
+        if (config.includeSystemLog()) {
+            val sysLogInfo = HiLogConfig.HI_SYS_FORMATTER.format(ProcessBuilder("logcat", "-d"))
+            sb.append(sysLogInfo).append("\n")
+        }
         if (config.includeThread()) {
             val threadInfo = HiLogConfig.HI_THREAD_FORMATTER.format(Thread.currentThread())
             sb.append(threadInfo).append("\n")
         }
+
         if (config.stackTraceDepth() > 0) {
 
             val res = HiStackTraceUtil.getCropRealStackTrack(
@@ -97,7 +105,31 @@ object HiLog {
         val printers = config.getPrinter()
         if (printers.isNotEmpty()) {
             printers.forEach {
-                it.print(config, type, tag, sb.toString())
+                if (it is HiFilePrinter) {
+                    val content = sb.toString()
+                    if (config.useDefaultEncrypt()) {
+
+                        it.print(
+                            config,
+                            type,
+                            tag,
+                            DefaultEncryptUtil.encrypt(
+                                content.toByteArray(),
+                                config.getDefaultEncryptKey().toByteArray()
+                            ).toString(Charsets.UTF_8) ?: ""
+                        )
+                    } else {
+                        it.print(
+                            config,
+                            type,
+                            tag,
+                            config.getEncryptCallback()?.encrypt(content) ?: ""
+                        )
+                    }
+
+                } else {
+                    it.print(config, type, tag, sb.toString())
+                }
             }
         }
 
