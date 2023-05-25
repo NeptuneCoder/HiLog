@@ -115,15 +115,13 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
         if (countOfSub > 0) {
             var index = 0
             repeat(countOfSub) {
-                Log.println(level, tag, printString.substring(index, index + HiLogConfig.MAX_LEN))
+                write2local(
+                    level, tag, printString.substring(index, index + HiLogConfig.MAX_LEN)
+                )
                 index += HiLogConfig.MAX_LEN
             }
             if (index != len) {
-                Log.println(
-                    level, tag, printString.substring(
-                        index, len
-                    )
-                )
+
                 write2local(
                     level, tag, printString.substring(
                         index, len

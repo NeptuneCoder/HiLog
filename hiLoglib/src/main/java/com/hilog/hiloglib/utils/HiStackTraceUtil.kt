@@ -37,14 +37,14 @@ object HiStackTraceUtil {
         var clazzName: String = ""
         for (i in (allDeath - 1) downTo 0) {
             clazzName = stackTrace[i]!!.className
-            if (ignorePackName != null && clazzName.startsWith(ignorePackName)) {
+            if (ignorePackName != null && clazzName.contains(ignorePackName)) {
                 ignoreDepth = i + 1
                 break
             }
         }
         val realDepth = allDeath - ignoreDepth
         val realStack = arrayOfNulls<StackTraceElement>(realDepth)
-        System.arraycopy(stackTrace, 0, realStack, 0, realDepth)
+        System.arraycopy(stackTrace, ignoreDepth, realStack, 0, realDepth)
         return realStack
     }
 }

@@ -91,7 +91,6 @@ object HiLog {
         }
 
         if (config.stackTraceDepth() > 0) {
-
             val res = HiStackTraceUtil.getCropRealStackTrack(
                 Throwable().stackTrace.toList().toTypedArray(),
                 HI_LOG_PACKAGE,
@@ -106,16 +105,28 @@ object HiLog {
         if (printers.isNotEmpty()) {
             printers.forEach {
                 if (it is HiFilePrinter) {
-                    val content = sb.toString()
                     if (config.useDefaultEncrypt()) {
-                        val encryptBeforeStr = DefaultEncryptUtil.encrypt(
-                            content.toByteArray(),
-                            config.getDefaultEncryptKey().toByteArray()
-                        ).toString(Charsets.UTF_8) ?: ""
-                        it.print(config, type, tag, encryptBeforeStr)
+
+
+                        it.print(
+                            config, type, (DefaultEncryptUtil.encrypt(
+                                tag.toByteArray(),
+                                config.getDefaultEncryptKey().toByteArray()
+                            ).toString(Charsets.UTF_8) + "\n") ?: "", (((DefaultEncryptUtil.encrypt(
+                                sb.toString().toByteArray(),
+                                config.getDefaultEncryptKey().toByteArray()
+                            ).toString(Charsets.UTF_8) + "\n") ?: ""))
+                        )
                     } else {
-                        val encryptBeforeStr = config.getEncryptCallback()?.encrypt(content) ?: ""
-                        it.print(config, type, tag, encryptBeforeStr)
+                        val encryptCallback = config.getEncryptCallback()
+                        val encryptBeforeStr =
+
+                            it.print(
+                                config,
+                                type,
+                                (encryptCallback?.encrypt(tag) + "\n") ?: "",
+                                (encryptCallback?.encrypt(sb.toString()) + "\n") ?: ""
+                            )
                     }
                 } else {
                     it.print(config, type, tag, sb.toString())
