@@ -12,4 +12,6 @@ interface HiLogPrinter {
         @NonNull printString: String
     )
 
+
+
 }

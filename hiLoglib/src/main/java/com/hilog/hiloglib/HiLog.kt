@@ -114,7 +114,7 @@ object HiLog {
         }
 
 
-        if (sb.length > 0) {
+        if (sb.isNotEmpty()) {
             sb.deleteCharAt(sb.length - 1)
         }
         return sb.toString()

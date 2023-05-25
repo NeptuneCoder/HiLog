@@ -134,6 +134,9 @@ object HiLogManager {
             return this
         }
 
+        /**
+         * 1024 == 1k
+         */
         fun setMaxFileSize(maxFileSize: Int): Factory {
             this.maxFileSize = maxFileSize
             return this
@@ -141,6 +144,7 @@ object HiLogManager {
 
 
         fun build() {
+            checkParams()
             // 构建Config对象
             val config = object : HiLogConfig() {
                 override fun getPrinter(): MutableList<HiLogPrinter> {
@@ -194,6 +198,16 @@ object HiLogManager {
 
             init(config)
 
+        }
+
+        /**
+         * 检查参数的合理性
+         */
+        private fun checkParams() {
+            if (isSaveLogFile) {
+                //如果要保存日志，则存放在系统的默认文件夹下面
+                logFileDir = "${app?.cacheDir?.absolutePath}"
+            }
         }
 
 

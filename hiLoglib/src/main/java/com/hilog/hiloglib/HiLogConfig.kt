@@ -63,7 +63,7 @@ abstract class HiLogConfig {
     }
 
     interface IUploadLogFile {
-        fun uploadLogFile(file: Array<File>)
+        fun uploadLogFile(file: MutableList<File>)
     }
 
     open fun isSaveLogFile(): Boolean {

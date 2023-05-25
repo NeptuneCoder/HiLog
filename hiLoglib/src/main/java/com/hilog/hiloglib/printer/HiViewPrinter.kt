@@ -69,7 +69,7 @@ class HiViewPrinter(val app: Application) : HiLogPrinter {
             holder.msgView.setText(data.log)
         }
 
-        fun getHighlightColor(logLevel: Int): Int {
+        private fun getHighlightColor(logLevel: Int): Int {
             return when (logLevel) {
                 HiLogType.V -> 0xffbbbbbb.toInt()
                 HiLogType.D -> 0xffffffff.toInt()
