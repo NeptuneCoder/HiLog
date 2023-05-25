@@ -41,3 +41,12 @@ HiLogManager.Factory()
 HiLogManager.sendAllLogFile()//回调所有日志文件
 HiLogManager.sendLastNewLogFile()//回调最新的日志文件
 ```
+
+## 以上配置日志文件会删除超过最大占用空间的最老文件
+
+![img.png](pics/img.png)
+![img.png](pics/img_1.png)
+
+## 全局查看日志文件
+
+![img.png](pics/img_2.png)
