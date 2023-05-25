@@ -21,7 +21,7 @@ class HiViewPrinter(val app: Application) : HiLogPrinter {
     init {
         //todo  全局添加，而不是基于某一个activity
         recyclerView = RecyclerView(app)
-        recyclerView.setBackgroundColor(Color.GRAY)
+        recyclerView.setBackgroundColor(Color.BLACK)
         val layoutmanager = LinearLayoutManager(app)
         recyclerView.layoutManager = layoutmanager
         adapter = LogAdapter(recyclerView)

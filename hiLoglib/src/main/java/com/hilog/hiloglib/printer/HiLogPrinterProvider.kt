@@ -38,51 +38,10 @@ class HiLogPrinterProvider constructor(val app: Application, var recyclerView: R
 
         params.x = 0
         params.y = 200.dp2px(app)
-
         windowManager = app.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-//        registerLifecycle()
     }
 
-//    val status = mutableListOf<Boolean>()
-//    val activityCallback = object : Application.ActivityLifecycleCallbacks {
-//        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-//
-//        }
-//
-//        override fun onActivityStarted(activity: Activity) {
-//
-//        }
-//
-//        override fun onActivityResumed(activity: Activity) {
-//            status.add(true)
-//        }
-//
-//        override fun onActivityPaused(activity: Activity) {
-//
-//        }
-//
-//        override fun onActivityStopped(activity: Activity) {
-//
-//        }
-//
-//        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-//
-//        }
-//
-//        override fun onActivityDestroyed(activity: Activity) {
-//            status.removeLast()
-//            if (status.isEmpty()) {
-//                //完全退出应用
-//                hideFloatingView()
-//            }
-//        }
-//
-//    }
-//
-//    private fun registerLifecycle() {
-//        app.registerActivityLifecycleCallbacks(activityCallback)
-//    }
 
     var isAddFloatingView = false
     fun showFloatingView() {
@@ -175,6 +134,7 @@ class HiLogPrinterProvider constructor(val app: Application, var recyclerView: R
 
 
         val closeView = TextView(app)
+        closeView.setTextColor(Color.WHITE)
         closeView.layoutParams = params
         closeView.setText("closeView")
         closeView.setOnClickListener {
