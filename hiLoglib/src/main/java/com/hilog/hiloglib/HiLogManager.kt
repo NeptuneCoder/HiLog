@@ -48,7 +48,7 @@ object HiLogManager {
         hiConfig?.let {
             it.getPrinter().forEach {
                 if (it is HiFilePrinter) {
-                    it.callLastNewFile()
+                    it.callAllFile()
                 }
             }
         }

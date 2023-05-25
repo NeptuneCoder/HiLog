@@ -3,6 +3,7 @@ package com.hilog.hiloglib.printer
 import android.util.Log
 import com.hilog.hiloglib.HiLogConfig
 import com.hilog.hiloglib.utils.DateStr2Long
+import com.hilog.hiloglib.utils.ThreadManager
 import com.hilog.hiloglib.utils.format
 import com.hilog.hiloglib.utils.getFileSimpleName
 import java.io.BufferedWriter
@@ -158,22 +159,23 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
 
     val batchSize = 1000 // 每次写入的批量大小
     private fun write2File(title: String, substring: String, bw: BufferedWriter) {
-
-        val content = title + "\n" + substring
-
-        try {
-            val totalDataSize = content.length
-            var startIndex = 0
-            while (startIndex < totalDataSize) {
-                val endIndex = Math.min(startIndex + batchSize, totalDataSize)
-                val batchData = content.substring(startIndex, endIndex)
-                bw.write(batchData)
-                bw.flush()
-                startIndex += batchSize
+        ThreadManager.executor.submit {
+            val content = title + "\n" + substring
+            try {
+                val totalDataSize = content.length
+                var startIndex = 0
+                while (startIndex < totalDataSize) {
+                    val endIndex = Math.min(startIndex + batchSize, totalDataSize)
+                    val batchData = content.substring(startIndex, endIndex)
+                    bw.write(batchData)
+                    bw.flush()
+                    startIndex += batchSize
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
+
 
     }
 
