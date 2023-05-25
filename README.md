@@ -7,8 +7,11 @@
 1. 支持控制台日志查看功能
 2. 支持app内面板全局查看功能，解决没有控制台不能查看的问题
 3. 支持日常本地缓存功能及暴露日志上传接口
+
 ## 项目整体架构图
+
 ![img.png](pics/架构图.png)
+
 ## 使用案例
 
 ```kotlin
@@ -24,6 +27,13 @@ HiLogManager.Factory()
     .setLogFileDir(this.cacheDir.absolutePath)//设置日志文件缓存目录
     .setMaxFileSize(1024 * 60)//缓存日志文件最大占用空间空间,60k
     .setLogFileSize(1024 * 10)//日志单个文件占用空间，10k
+    //.useDefaultEncrypt("232sxdasxzaasfaa")//使用系统默认加密工具
+    .useCustomEncrypt(false)//自定义加解密工具时，需要实现OnEncryptCallback接口
+    .setEncryptCallback(object : OnEncryptCallback {
+        override fun encrypt(content: String): String {
+            return content
+        }
+    })
     .setUploadLogFileCallback(object : HiLogConfig.IUploadLogFile {
         //触发日志上传功能
         override fun uploadLogFile(file: MutableList<File>) {

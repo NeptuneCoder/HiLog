@@ -86,6 +86,7 @@ object HiLogManager {
         private var jsonParser: HiLogConfig.JsonParser? = null
         private val printers = mutableListOf<HiLogPrinter>()
         private var useDefaultEncrypt = false
+        private var useCustomEncrypt = false
 
 
         fun addPrinter(printer: HiLogPrinter): Factory {
@@ -174,6 +175,11 @@ object HiLogManager {
             return this
         }
 
+        fun useCustomEncrypt(useCustomEncrypt: Boolean): Factory {
+            this.useCustomEncrypt = useCustomEncrypt
+            return this
+        }
+
 
         fun build() {
             checkParams()
@@ -241,6 +247,10 @@ object HiLogManager {
 
                 override fun useDefaultEncrypt(): Boolean {
                     return useDefaultEncrypt
+                }
+
+                override fun useCustomEncrypt(): Boolean {
+                    return useCustomEncrypt
                 }
 
                 override fun getDefaultEncryptKey(): String {

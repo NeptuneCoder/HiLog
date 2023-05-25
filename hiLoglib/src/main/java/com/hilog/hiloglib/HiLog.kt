@@ -117,7 +117,7 @@ object HiLog {
                                 config.getDefaultEncryptKey().toByteArray()
                             ).toString(Charsets.UTF_8) + "\n") ?: ""))
                         )
-                    } else {
+                    } else if (config.useCustomEncrypt()) {
                         val encryptCallback = config.getEncryptCallback()
                         val encryptBeforeStr =
 
@@ -127,6 +127,12 @@ object HiLog {
                                 (encryptCallback?.encrypt(tag) + "\n") ?: "",
                                 (encryptCallback?.encrypt(sb.toString()) + "\n") ?: ""
                             )
+                    } else {
+                        it.print(
+                            config,
+                            type,
+                            tag, sb.toString()
+                        )
                     }
                 } else {
                     it.print(config, type, tag, sb.toString())

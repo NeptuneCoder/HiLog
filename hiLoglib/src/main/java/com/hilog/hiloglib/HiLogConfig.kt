@@ -9,7 +9,7 @@ import com.hilog.hiloglib.format.HiThreadFormatter
 import com.hilog.hiloglib.printer.HiLogPrinter
 import java.io.File
 
- abstract class HiLogConfig {
+abstract class HiLogConfig {
     companion object {
         val MAX_LEN = 512
         val HI_STACK_TRACE_FORMATTER = HiStackTraceFormatter()
@@ -102,6 +102,10 @@ import java.io.File
     }
 
     open fun useDefaultEncrypt(): Boolean {
+        return false
+    }
+
+    open fun useCustomEncrypt(): Boolean {
         return false
     }
 
