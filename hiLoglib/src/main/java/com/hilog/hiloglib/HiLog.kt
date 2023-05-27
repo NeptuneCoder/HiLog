@@ -104,39 +104,7 @@ object HiLog {
         val printers = config.getPrinter()
         if (printers.isNotEmpty()) {
             printers.forEach {
-                if (it is HiFilePrinter) {
-                    if (config.useDefaultEncrypt()) {
-
-
-                        it.print(
-                            config, type, (DefaultEncryptUtil.encrypt(
-                                tag.toByteArray(),
-                                config.getDefaultEncryptKey().toByteArray()
-                            ).toString(Charsets.UTF_8) + "\n") ?: "", (((DefaultEncryptUtil.encrypt(
-                                sb.toString().toByteArray(),
-                                config.getDefaultEncryptKey().toByteArray()
-                            ).toString(Charsets.UTF_8) + "\n") ?: ""))
-                        )
-                    } else if (config.useCustomEncrypt()) {
-                        val encryptCallback = config.getEncryptCallback()
-                        val encryptBeforeStr =
-
-                            it.print(
-                                config,
-                                type,
-                                (encryptCallback?.encrypt(tag) + "\n") ?: "",
-                                (encryptCallback?.encrypt(sb.toString()) + "\n") ?: ""
-                            )
-                    } else {
-                        it.print(
-                            config,
-                            type,
-                            tag, sb.toString()
-                        )
-                    }
-                } else {
-                    it.print(config, type, tag, sb.toString())
-                }
+                it.print(config, type, tag, sb.toString())
             }
         }
 

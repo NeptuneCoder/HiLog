@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 rootProject.name = "HiLog-lib"
 include ':app'
 include ':hiLoglib'
+include ':decryptLib'
+

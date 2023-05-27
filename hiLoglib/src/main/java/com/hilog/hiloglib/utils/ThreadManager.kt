@@ -1,5 +1,6 @@
 package com.hilog.hiloglib.utils
 
+import androidx.work.WorkManager
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -18,5 +19,6 @@ object ThreadManager {
         TimeUnit.SECONDS,
         LinkedBlockingQueue<Runnable>()
     )
+
 
 }

@@ -1,15 +1,16 @@
 package com.hilog.hiloglib.encrypt
 
+import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
 object DefaultEncryptUtil {
     @JvmStatic
-    fun encrypt(data: ByteArray, key: ByteArray): ByteArray {
+    fun encrypt(data: String, key: ByteArray): ByteArray {
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         val secretKey = SecretKeySpec(key, "AES")
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-        return cipher.doFinal(data)
+        return cipher.doFinal(data.toByteArray(StandardCharsets.UTF_8))
     }
 
     // 解密

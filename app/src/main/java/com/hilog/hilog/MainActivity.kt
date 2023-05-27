@@ -17,10 +17,6 @@ class MainActivity : AppCompatActivity() {
 
     fun onHiLogClick(view: View) {
         HiLog.i("9900")
-        HiLog.a("9900")
-        HiLog.d("9900")
-        HiLog.e("9900")
-        HiLog.w("9900")
     }
 
     fun startActivityB(view: View) {

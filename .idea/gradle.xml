@@ -11,7 +11,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/DetectorTime" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/decryptLib" />
             <option value="$PROJECT_DIR$/hiLoglib" />
           </set>
         </option>

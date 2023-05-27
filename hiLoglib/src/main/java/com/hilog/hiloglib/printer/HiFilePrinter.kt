@@ -1,22 +1,29 @@
 package com.hilog.hiloglib.printer
 
-import android.util.Log
+import androidx.work.WorkManager
 import com.hilog.hiloglib.HiLogConfig
 import com.hilog.hiloglib.callback.ErrorType
+import com.hilog.hiloglib.encrypt.DefaultEncryptUtil
 import com.hilog.hiloglib.utils.DateStr2Long
 import com.hilog.hiloglib.utils.ThreadManager
 import com.hilog.hiloglib.utils.format
 import com.hilog.hiloglib.utils.getFileSimpleName
-import java.io.BufferedWriter
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
-import java.util.Arrays
+import java.io.RandomAccessFile
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
+import java.nio.charset.StandardCharsets
 
 
 class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
     private val filePath: String = config.getLogFileDir()
     private val fileDir: File = File(filePath)
+    val work by lazy {
+        WorkManager.getInstance(config.getApplication()!!).apply {
+
+        }
+    }
 
     init {
         if (!fileDir.exists()) {
@@ -57,7 +64,7 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
         return size > config.getMaxFileSize()
     }
 
-    private fun getLastOldOrNewFile(file: File, isLastNew: Boolean = true): File? {
+    private fun getLastOldOrNewFile(file: File, isLastNew: Boolean = true): File {
 
         var targetFile: File? = null
         var lastDate: Long = 0
@@ -97,7 +104,7 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
             return createNewFile()
         }
 
-        return targetFile
+        return targetFile!!
 
     }
 
@@ -107,74 +114,72 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
         }
     }
 
+
     override fun print(config: HiLogConfig, level: Int, tag: String, printString: String) {
 
-        //todo 日志写入到本地文件中，考虑文件太大，所有切成多个文件进行保存
-        val len = printString.length
-        val countOfSub = len / HiLogConfig.MAX_LEN
-        if (countOfSub > 0) {
-            var index = 0
-            repeat(countOfSub) {
-                write2local(
-                    level, tag, printString.substring(index, index + HiLogConfig.MAX_LEN)
-                )
-                index += HiLogConfig.MAX_LEN
-            }
-            if (index != len) {
-
-                write2local(
-                    level, tag, printString.substring(
-                        index, len
-                    )
-                )
-            }
-        } else {
-            write2local(
-                level, tag, printString
+        var title = System.currentTimeMillis().format() + "-|-" + level + "-|-" + tag + "-|"
+        val newStr = title + "\n" + printString
+        if (config.useDefaultEncrypt()) {
+            val temRes = DefaultEncryptUtil.encrypt(
+                newStr,
+                config.getDefaultEncryptKey().toByteArray()
             )
+
+            write2local(temRes + "<segment>".toByteArray())
+
+
+        } else if (config.useCustomEncrypt()) {
+            val encryptCallback = config.getEncryptCallback()
+
+            write2local(encryptCallback?.encrypt(newStr) ?: "".toByteArray(Charsets.UTF_8))
+        } else {
+            newStr
+            write2local(newStr.toByteArray(Charsets.UTF_8))
         }
+
     }
 
     var file: File? = null
-    var bw: BufferedWriter? = null
-    private fun write2local(level: Int, tag: String, substring: String) {
-        val title = System.currentTimeMillis().format() + "-|-" + level + "-|-" + tag + "-|"
 
-
+    var randomAccessFile: RandomAccessFile? = null
+    var fileChannel: FileChannel? = null
+    var mappedBuffer: MappedByteBuffer? = null
+    private fun write2local(content: ByteArray) {
         if (file == null) {
             if (allLogFileSizeIsFull(fileDir)) {
-                deleteFile(getLastOldOrNewFile(fileDir, false)!!)
+                deleteFile(getLastOldOrNewFile(fileDir, false))
             }
             file = getLastOldOrNewFile(fileDir, true)
-            bw = BufferedWriter(java.io.FileWriter(file))
+
+            randomAccessFile = RandomAccessFile(file, "rw")
         }
         if (fileSizeIsFull(file!!)) {
             if (allLogFileSizeIsFull(fileDir)) {
-                deleteFile(getLastOldOrNewFile(fileDir, false)!!)
+                deleteFile(getLastOldOrNewFile(fileDir, false))
             }
-            bw?.close()//如果文件满了，则释放之前的bw对象
-            bw = null
+            randomAccessFile?.close()//如果文件满了，则释放之前的bw对象
+            randomAccessFile = null
             file = getLastOldOrNewFile(fileDir, true)
-            bw = BufferedWriter(java.io.FileWriter(file))
+            randomAccessFile = RandomAccessFile(file, "rw")
         }
-        write2File(title, substring, bw!!)
+        fileChannel = randomAccessFile?.channel
+
+        mappedBuffer =
+            fileChannel!!.map(
+                FileChannel.MapMode.READ_WRITE,
+                file?.length() ?: 0,
+                content.size.toLong()
+            )
+        write2File(content, mappedBuffer!!)
 
     }
 
-    val batchSize = 1000 // 每次写入的批量大小
-    private fun write2File(title: String, substring: String, bw: BufferedWriter) {
+    private fun write2File(content: ByteArray, mappedBuffer: MappedByteBuffer) {
         ThreadManager.executor.submit {
-            val content = title + "\n" + substring
             try {
-                val totalDataSize = content.length
-                var startIndex = 0
-                while (startIndex < totalDataSize) {
-                    val endIndex = Math.min(startIndex + batchSize, totalDataSize)
-                    val batchData = content.substring(startIndex, endIndex)
-                    bw.write(batchData)
-                    bw.flush()
-                    startIndex += batchSize
-                }
+
+                mappedBuffer.put(content)
+                mappedBuffer.force()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -189,7 +194,7 @@ class HiFilePrinter constructor(val config: HiLogConfig) : HiLogPrinter {
         val files = mutableListOf<File>()
         val file = File(config.getLogFileDir())
         val lastOldOrNewFile = getLastOldOrNewFile(file, true)
-        files.add(lastOldOrNewFile!!)
+        files.add(lastOldOrNewFile)
         val iUploadLogFile = config.getIUploadLogFile()
         iUploadLogFile?.uploadLogFile(file = files)
     }

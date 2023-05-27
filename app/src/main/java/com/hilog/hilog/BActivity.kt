@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.hilog.hiloglib.HiLog
+import kotlinx.coroutines.coroutineScope
 
 class BActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

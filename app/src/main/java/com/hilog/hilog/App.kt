@@ -26,11 +26,11 @@ class App : Application() {
             .setLogFileDir(this.cacheDir.absolutePath)
             .setMaxFileSize(1024 * 60)
             .setLogFileSize(1024 * 10)
-//            .useDefaultEncrypt("232sxdasxzaasfaa")//使用系统默认加密工具
+//            .useDefaultEncrypt("232sxdasxzaasfaa232sxdasxzaasfaa")//使用系统默认加密工具232sxdasxzaasfaa
             .useCustomEncrypt(false)//自定义加解密工具时，需要实现OnEncryptCallback接口
             .setEncryptCallback(object : OnEncryptCallback {
-                override fun encrypt(content: String): String {
-                    return content
+                override fun encrypt(content: String): ByteArray {
+                    return content.toByteArray()
                 }
             })
             .setUploadLogFileCallback(object : HiLogConfig.IUploadLogFile {
